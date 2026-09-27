@@ -41,7 +41,17 @@ app.use(
 );
 app.use(express.json());
 
-// Ensure database connection is active before processing requests (crucial for serverless)
+// Dedicated health check endpoint with database status
+app.get("/api/health", async (_req, res) => {
+  try {
+    await connectDB();
+    res.json({ status: "ok", db: "connected" });
+  } catch (err: any) {
+    res.status(500).json({ status: "error", dbError: err?.message || String(err) });
+  }
+});
+
+// Ensure database connection is active before processing api requests
 app.use(async (_req, _res, next) => {
   try {
     await connectDB();
@@ -52,8 +62,6 @@ app.use(async (_req, _res, next) => {
   }
 });
 
-app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
-
 app.use("/api/auth", authRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/courses", courseRoutes);
@@ -61,8 +69,8 @@ app.use("/api/admin", adminRoutes);
 
 // simple error handler (fallback)
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error(err);
-  res.status(500).json({ message: "Server error" });
+  console.error("Server Error Handler:", err);
+  res.status(500).json({ message: "Server error", detail: err?.message || String(err) });
 });
 
 const PORT = process.env.PORT || 5000;

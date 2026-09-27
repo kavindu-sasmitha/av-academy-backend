@@ -11,9 +11,7 @@ export const connectDB = async (): Promise<void> => {
   if (!uri) {
     throw new Error("MONGO_URI is not set in .env");
   }
-  await mongoose.connect(uri, {
-    bufferCommands: false,
-  });
+  await mongoose.connect(uri);
   isConnected = true;
   console.log("MongoDB connected");
 };
