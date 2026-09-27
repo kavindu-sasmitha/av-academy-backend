@@ -41,6 +41,17 @@ app.use(
 );
 app.use(express.json());
 
+// Ensure database connection is active before processing requests (crucial for serverless)
+app.use(async (_req, _res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("MongoDB connection middleware error:", err);
+    next(err);
+  }
+});
+
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
 app.use("/api/auth", authRoutes);
@@ -56,11 +67,16 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 
 const PORT = process.env.PORT || 5000;
 
-connectDB()
-  .then(() => {
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error("Failed to connect to MongoDB:", err.message);
-    process.exit(1);
-  });
+// When running locally or as a persistent server (not on Vercel serverless)
+if (!process.env.VERCEL) {
+  connectDB()
+    .then(() => {
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch((err) => {
+      console.error("Failed to connect to MongoDB:", err.message);
+      process.exit(1);
+    });
+}
+
+export default app;
