@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Course from "../models/Course";
+import Review from "../models/Review";
 
 // Edit these to the academy's real contact details / social links — shown in
 // the site footer. Left as plain constants (not DB fields) since they change
@@ -101,4 +102,27 @@ export const publicInstructors = async (_req: Request, res: Response) => {
   }
 
   res.json({ instructors: Array.from(byName.values()) });
+};
+
+// GET /api/public/reviews -> recent and featured reviews for the home page showcase
+export const publicReviews = async (_req: Request, res: Response) => {
+  const reviews = await Review.find()
+    .populate("user", "name avatar")
+    .populate("course", "title thumbnail")
+    .sort({ isFeatured: -1, createdAt: -1 })
+    .limit(12);
+
+  const result = reviews
+    .filter((r) => r.course && r.user)
+    .map((r: any) => ({
+      id: r._id,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt,
+      studentName: r.user?.name || "Verified Student",
+      studentAvatar: r.user?.avatar,
+      courseTitle: r.course?.title || "Academy Course",
+    }));
+
+  res.json({ reviews: result });
 };

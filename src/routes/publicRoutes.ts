@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { academyInfo, publicCourses, publicInstructors } from "../controllers/publicController";
+import { academyInfo, publicCourses, publicInstructors, publicReviews } from "../controllers/publicController";
 
 const router = Router();
 
@@ -7,5 +7,6 @@ const router = Router();
 router.get("/academy", academyInfo);
 router.get("/courses", publicCourses);
 router.get("/instructors", publicInstructors);
+router.get("/reviews", publicReviews);
 
 export default router;
