@@ -252,14 +252,14 @@ export const listAllStudents = async (_req: AuthRequest, res: Response) => {
   const studentIds = students.map((s) => s._id);
 
   const [allEnrollments, allQuizSubmissions, allAssignmentSubmissions] = await Promise.all([
-    Enrollment.find({ user: { $in: studentIds } }).populate("course", "title thumbnail"),
+    Enrollment.find({ user: { $in: studentIds } }).populate("course", "title thumbnail previewVideoUrl"),
     QuizSubmission.find({ student: { $in: studentIds } })
       .populate("quiz", "title")
-      .populate("course", "title")
+      .populate("course", "_id title")
       .sort({ completedAt: -1 }),
     AssignmentSubmission.find({ student: { $in: studentIds } })
       .populate("assignment", "title maxMarks")
-      .populate("course", "title")
+      .populate("course", "_id title")
       .sort({ submittedAt: -1 }),
   ]);
 
@@ -289,6 +289,7 @@ export const listAllStudents = async (_req: AuthRequest, res: Response) => {
         id: q._id,
         quizId: q.quiz?._id,
         quizTitle: q.quiz?.title || "Quiz",
+        courseId: q.course?._id,
         courseTitle: q.course?.title || "Course",
         score: q.score,
         maxScore: q.maxScore,
@@ -300,6 +301,7 @@ export const listAllStudents = async (_req: AuthRequest, res: Response) => {
         id: a._id,
         assignmentId: a.assignment?._id,
         assignmentTitle: a.assignment?.title || "Assignment",
+        courseId: a.course?._id,
         courseTitle: a.course?.title || "Course",
         marks: a.marks,
         maxMarks: a.maxMarks || a.assignment?.maxMarks || 100,
