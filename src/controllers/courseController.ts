@@ -8,6 +8,7 @@ import Assignment, { IAssignment } from "../models/Assignment";
 import AssignmentSubmission from "../models/AssignmentSubmission";
 import Review from "../models/Review";
 import { AuthRequest } from "../middleware/auth";
+import { resolveThumbnail } from "../utils/youtube";
 
 // GET /api/courses  -> list of all published courses (catalog view, no video content)
 export const listCourses = async (req: AuthRequest, res: Response) => {
@@ -21,7 +22,7 @@ export const listCourses = async (req: AuthRequest, res: Response) => {
     id: c._id,
     title: c.title,
     description: c.description,
-    thumbnail: c.thumbnail,
+    thumbnail: resolveThumbnail(c.thumbnail, c.previewVideoUrl) || c.thumbnail,
     category: c.category,
     price: c.price,
     instructorName: c.instructorName,
@@ -78,7 +79,7 @@ export const getCourseDetail = async (req: AuthRequest, res: Response) => {
       id: course._id,
       title: course.title,
       description: course.description,
-      thumbnail: course.thumbnail,
+      thumbnail: resolveThumbnail(course.thumbnail, course.previewVideoUrl) || course.thumbnail,
       category: course.category,
       price: course.price,
       instructorName: course.instructorName,
@@ -189,7 +190,7 @@ export const myCourses = async (req: AuthRequest, res: Response) => {
       id: e.course._id,
       title: e.course.title,
       description: e.course.description,
-      thumbnail: e.course.thumbnail,
+      thumbnail: resolveThumbnail(e.course.thumbnail, e.course.previewVideoUrl) || e.course.thumbnail,
       category: e.course.category,
       instructorName: e.course.instructorName,
       instructorAvatar: e.course.instructorAvatar,

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Course from "../models/Course";
 import Review from "../models/Review";
+import { resolveThumbnail } from "../utils/youtube";
 
 // Edit these to the academy's real contact details / social links — shown in
 // the site footer. Left as plain constants (not DB fields) since they change
@@ -60,7 +61,7 @@ export const publicCourses = async (_req: Request, res: Response) => {
     id: c._id,
     title: c.title,
     description: c.description,
-    thumbnail: c.thumbnail,
+    thumbnail: resolveThumbnail(c.thumbnail, c.previewVideoUrl) || c.thumbnail,
     category: c.category,
     price: c.price,
     instructorName: c.instructorName,

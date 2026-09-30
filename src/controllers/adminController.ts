@@ -9,13 +9,14 @@ import Assignment, { IAssignment } from "../models/Assignment";
 import AssignmentSubmission from "../models/AssignmentSubmission";
 import Review from "../models/Review";
 import { AuthRequest } from "../middleware/auth";
+import { resolveThumbnail } from "../utils/youtube";
 
 // shape mongoose docs into the `id` (not `_id`) form the frontend expects everywhere else
 const courseJSON = (c: ICourse) => ({
   id: c._id,
   title: c.title,
   description: c.description,
-  thumbnail: c.thumbnail,
+  thumbnail: resolveThumbnail(c.thumbnail, c.previewVideoUrl) || c.thumbnail,
   category: c.category,
   price: c.price,
   instructorName: c.instructorName,
@@ -59,10 +60,12 @@ export const createCourse = async (req: AuthRequest, res: Response) => {
   if (!title || !description) {
     return res.status(400).json({ message: "Title and description are required" });
   }
+  const resolvedThumbnail = resolveThumbnail(thumbnail, previewVideoUrl) || thumbnail;
+
   const course = await Course.create({
     title,
     description,
-    thumbnail,
+    thumbnail: resolvedThumbnail,
     category,
     price,
     instructorName,
@@ -107,12 +110,14 @@ export const updateCourse = async (req: AuthRequest, res: Response) => {
     whatsappNumber,
     isPublished,
   } = req.body;
+  const resolvedThumbnail = resolveThumbnail(thumbnail, previewVideoUrl) || thumbnail;
+
   const course = await Course.findByIdAndUpdate(
     req.params.id,
     {
       title,
       description,
-      thumbnail,
+      thumbnail: resolvedThumbnail,
       category,
       price,
       instructorName,
@@ -277,7 +282,7 @@ export const listAllStudents = async (_req: AuthRequest, res: Response) => {
       enrolledCourses: enrolled.map((e: any) => ({
         id: e.course?._id,
         title: e.course?.title || "Unknown Course",
-        thumbnail: e.course?.thumbnail,
+        thumbnail: e.course ? (resolveThumbnail(e.course.thumbnail, (e.course as any).previewVideoUrl) || e.course.thumbnail) : undefined,
         enrolledAt: e.createdAt,
       })),
       quizSubmissions: quizzes.map((q: any) => ({
