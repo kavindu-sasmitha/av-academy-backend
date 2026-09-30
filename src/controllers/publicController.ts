@@ -23,10 +23,10 @@ export const academyInfo = async (_req: Request, res: Response) => {
 
   res.json({
     academy: {
-      name: "Academy",
+      name: "AV Academy",
       tagline: "Learn from real instructors, at your own pace.",
       description:
-        "Academy is an online learning platform where every course is taught by a named " +
+        "AV Academy is an online learning platform where every course is taught by a named " +
         "instructor with real-world experience. Browse the catalog for free, then sign in " +
         "to unlock the courses you've been granted access to and track your progress from " +
         "your own dashboard.",
@@ -122,7 +122,7 @@ export const publicReviews = async (_req: Request, res: Response) => {
       createdAt: r.createdAt,
       studentName: r.user?.name || "Verified Student",
       studentAvatar: r.user?.avatar,
-      courseTitle: r.course?.title || "Academy Course",
+      courseTitle: r.course?.title || "AV Academy Course",
     }));
 
   res.json({ reviews: result });
